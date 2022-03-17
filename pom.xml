@@ -212,6 +212,7 @@
                 <artifactId>ruoyi-common</artifactId>
                 <version>${ruoyi.version}</version>
             </dependency>
+            <!--学生模块-->
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>ruoyi-student</artifactId>

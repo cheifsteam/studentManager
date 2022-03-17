@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.student.mapper.DepartmentMapper">
+
+    <resultMap type="Department" id="DepartmentResult">
+        <result property="id"    column="id"    />
+        <result property="departmentId"    column="department_id"    />
+        <result property="departmentName"    column="department_name"    />
+    </resultMap>
+
+    <sql id="selectDepartmentVo">
+        select id, department_id, department_name from sys_department
+    </sql>
+
+    <select id="selectDepartmentList" parameterType="Department" resultMap="DepartmentResult">
+        <include refid="selectDepartmentVo"/>
+        <where>
+            <if test="departmentId != null "> and department_id = #{departmentId}</if>
+            <if test="departmentName != null  and departmentName != ''"> and department_name like concat('%', #{departmentName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectDepartmentById" parameterType="Long" resultMap="DepartmentResult">
+        <include refid="selectDepartmentVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDepartment" parameterType="Department">
+        insert into sys_department
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="departmentId != null">department_id,</if>
+            <if test="departmentName != null">department_name,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="departmentId != null">#{departmentId},</if>
+            <if test="departmentName != null">#{departmentName},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDepartment" parameterType="Department">
+        update sys_department
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="departmentId != null">department_id = #{departmentId},</if>
+            <if test="departmentName != null">department_name = #{departmentName},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDepartmentById" parameterType="Long">
+        delete from sys_department where id = #{id}
+    </delete>
+
+    <delete id="deleteDepartmentByIds" parameterType="String">
+        delete from sys_department where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

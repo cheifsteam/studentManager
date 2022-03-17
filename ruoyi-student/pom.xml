@@ -15,5 +15,20 @@
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
     </properties>
+    <dependencies>
+        <!--学生模块-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-student</artifactId>
+        </dependency>
+        <!-- 通用工具-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-common</artifactId>
+            <version>${ruoyi.version}</version>
+        </dependency>
+    </dependencies>
+
+
 
 </project>

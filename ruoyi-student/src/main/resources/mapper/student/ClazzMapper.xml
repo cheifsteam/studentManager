@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.student.mapper.ClazzMapper">
+
+    <resultMap type="Clazz" id="ClazzResult">
+        <result property="id"    column="id"    />
+        <result property="clazzId"    column="clazz_id"    />
+        <result property="clazzName"    column="clazz_name"    />
+        <result property="professionId"    column="profession_id"    />
+    </resultMap>
+
+    <sql id="selectClazzVo">
+        select id, clazz_id, clazz_name, profession_id from sys_clazz
+    </sql>
+
+    <select id="selectClazzList" parameterType="Clazz" resultMap="ClazzResult">
+        <include refid="selectClazzVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="clazzId != null "> and clazz_id = #{clazzId}</if>
+            <if test="clazzName != null  and clazzName != ''"> and clazz_name like concat('%', #{clazzName}, '%')</if>
+            <if test="professionId != null "> and profession_id = #{professionId}</if>
+        </where>
+    </select>
+
+    <select id="selectClazzById" parameterType="Long" resultMap="ClazzResult">
+        <include refid="selectClazzVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertClazz" parameterType="Clazz" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_clazz
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="clazzId != null">clazz_id,</if>
+            <if test="clazzName != null">clazz_name,</if>
+            <if test="professionId != null">profession_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="clazzId != null">#{clazzId},</if>
+            <if test="clazzName != null">#{clazzName},</if>
+            <if test="professionId != null">#{professionId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateClazz" parameterType="Clazz">
+        update sys_clazz
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="clazzId != null">clazz_id = #{clazzId},</if>
+            <if test="clazzName != null">clazz_name = #{clazzName},</if>
+            <if test="professionId != null">profession_id = #{professionId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteClazzById" parameterType="Long">
+        delete from sys_clazz where id = #{id}
+    </delete>
+
+    <delete id="deleteClazzByIds" parameterType="String">
+        delete from sys_clazz where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
