@@ -2,6 +2,7 @@ package com.ruoyi.student.service;
 
 import java.util.List;
 import com.ruoyi.student.domain.Profession;
+import com.ruoyi.student.domain.vo.ProfessionVo;
 
 /**
  * 专业Service接口
@@ -65,5 +66,21 @@ public interface IProfessionService
      * @return 结果
      */
     public  List<Profession> selectProfessionByDepartmentId(Long departmentId);
+
+
+    /**
+     * 导出专业
+     * @param profession
+     * @return
+     */
+    public List<ProfessionVo> selectProfessionVoList(Profession profession);
+
+    /**
+     * 根据专业id查询专业
+     * @param professionId
+     * @return
+     */
+    public List<Profession> selectProfessionByProfessionId(Long professionId);
+
 
 }

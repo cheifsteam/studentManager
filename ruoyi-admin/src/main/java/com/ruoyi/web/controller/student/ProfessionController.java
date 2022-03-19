@@ -1,7 +1,9 @@
-package com.ruoyi.student.controller;
+package com.ruoyi.web.controller.student;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.student.domain.vo.ProfessionVo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +47,17 @@ public class ProfessionController extends BaseController
         List<Profession> list = professionService.selectProfessionList(profession);
         return getDataTable(list);
     }
+    /**
+     * 查询所有专业的列表
+     *
+     */
+    @PreAuthorize("@ss.hasPermi('student:profession:list')")
+    @GetMapping("/listAll")
+    public AjaxResult listAll(Profession profession)
+    {
+        List <Profession> list =professionService.selectProfessionList(profession);
+        return AjaxResult.success(list);
+    }
 
     /**
      * 导出专业列表
@@ -54,8 +67,8 @@ public class ProfessionController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response, Profession profession)
     {
-        List<Profession> list = professionService.selectProfessionList(profession);
-        ExcelUtil<Profession> util = new ExcelUtil<Profession>(Profession.class);
+        List<ProfessionVo> list = professionService. selectProfessionVoList(profession);
+        ExcelUtil<ProfessionVo> util = new ExcelUtil<ProfessionVo>(ProfessionVo.class);
         util.exportExcel(response, list, "专业数据");
     }
 
@@ -110,5 +123,14 @@ public class ProfessionController extends BaseController
     @PostMapping(value = {"/{departmentId}"})
     public AjaxResult getInfoByDepartmentId (@PathVariable("departmentId") Long departmentId){
         return AjaxResult.success(professionService.selectProfessionByDepartmentId(departmentId));
+    }
+    /**
+     * 根据专业id查询专业
+     *
+     */
+    @PreAuthorize("@ss.hasPermi('student:profession:query')")
+    @GetMapping(value = "/info/{professionId}")
+    public AjaxResult getInfoByProfessionId (@PathVariable("professionId") Long professionId){
+        return AjaxResult.success(professionService.selectProfessionByProfessionId(professionId));
     }
 }

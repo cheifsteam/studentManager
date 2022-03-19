@@ -1,6 +1,8 @@
 package com.ruoyi.student.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.student.domain.vo.ClazzVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.student.mapper.ClazzMapper;
@@ -90,4 +92,35 @@ public class ClazzServiceImpl implements IClazzService
     {
         return clazzMapper.deleteClazzById(id);
     }
+
+    /**
+     * 根据院系ID查找班级
+     * @param departmentId  院系ID
+     * @return 结果
+     */
+    public List<Clazz>  selectClazzListByDepartmentId(Long departmentId){
+        return clazzMapper.selectClazzListByDepartmentId(departmentId);
+    }
+
+    /**
+     * 导出班级信息
+     * @param clazzVo 班级信息
+     * @return
+     */
+    @Override
+    public List<ClazzVo> selectClazzVoList(ClazzVo clazzVo) {
+        return clazzMapper.selectClazzVoList(clazzVo);
+    }
+
+    /**
+     * 通过专业ID 查找班级
+     * @param  professionId 专业ID
+     * @return
+     */
+    @Override
+    public List<Clazz> selectClazzListByProfessionId(Long professionId) {
+        return clazzMapper.selectClazzListByProfessionId(professionId);
+    }
+
+
 }

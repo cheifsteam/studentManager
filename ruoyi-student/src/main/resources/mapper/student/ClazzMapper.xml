@@ -10,6 +10,14 @@
         <result property="clazzName"    column="clazz_name"    />
         <result property="professionId"    column="profession_id"    />
     </resultMap>
+    <resultMap type="ClazzVo" id="ClazzVoResult">
+        <result property="id"    column="id"    />
+        <result property="clazzId"    column="clazz_id"    />
+        <result property="clazzName"    column="clazz_name"    />
+        <result property="professionId"    column="profession_id"    />
+        <result property="professionName" column="profession_name"/>
+        <result property="departmentName" column="department_name"/>
+    </resultMap>
 
     <sql id="selectClazzVo">
         select id, clazz_id, clazz_name, profession_id from sys_clazz
@@ -22,6 +30,23 @@
             <if test="clazzId != null "> and clazz_id = #{clazzId}</if>
             <if test="clazzName != null  and clazzName != ''"> and clazz_name like concat('%', #{clazzName}, '%')</if>
             <if test="professionId != null "> and profession_id = #{professionId}</if>
+
+        </where>
+    </select>
+    <select id="selectClazzListByDepartmentId" parameterType="Long" resultMap="ClazzResult">
+        select c.* from sys_clazz c join sys_profession p on c.profession_id=p.profession_id join sys_department d on
+        d.department_id=p.department_id where d.department_id = #{departmentId}
+    </select>
+
+    <select id="selectClazzVoList" parameterType="ClazzVo" resultMap="ClazzVoResult">
+        select c.*,p.profession_id,p.profession_name,d.department_name from sys_clazz c join sys_profession p on c.profession_id=p.profession_id join sys_department d on
+        d.department_id=p.department_id
+    <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="clazzId != null "> and clazz_id = #{clazzId}</if>
+            <if test="clazzName != null  and clazzName != ''"> and clazz_name like concat('%', #{clazzName}, '%')</if>
+            <if test="professionId != null "> and c.profession_id = #{professionId}</if>
+            <if test="departmentId != null "> and d.department_id = #{departmentId}</if>
         </where>
     </select>
 
@@ -64,4 +89,7 @@
             #{id}
         </foreach>
     </delete>
+    <select id="selectClazzListByProfessionId" parameterType="Long" resultMap="ClazzResult">
+        select clazz_id,clazz_name from sys_clazz where profession_id = #{professionId}
+    </select>
 </mapper>

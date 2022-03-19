@@ -2,6 +2,7 @@ package com.ruoyi.student.mapper;
 
 import java.util.List;
 import com.ruoyi.student.domain.Clazz;
+import com.ruoyi.student.domain.vo.ClazzVo;
 
 /**
  * 班级信息Mapper接口
@@ -58,4 +59,26 @@ public interface ClazzMapper
      * @return 结果
      */
     public int deleteClazzByIds(Long[] ids);
+    /**
+     * 根据院系ID查找班级
+     * @param departmentId  院系ID
+     * @return 结果
+     */
+    public List<Clazz>  selectClazzListByDepartmentId(Long departmentId);
+
+    /**
+     * 导出班级信息
+     * @param clazzVo 班级信息
+     * @return
+     */
+    public List<ClazzVo> selectClazzVoList(ClazzVo clazzVo);
+
+    /**
+     * 通过professionId查找班级
+     * @param  professionId 班级ID
+     * @return
+     */
+    public List<Clazz> selectClazzListByProfessionId(Long professionId);
+
+
 }

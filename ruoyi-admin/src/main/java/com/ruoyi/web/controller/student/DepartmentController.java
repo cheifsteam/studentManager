@@ -112,4 +112,10 @@ public class DepartmentController extends BaseController
     {
         return toAjax(departmentService.deleteDepartmentByIds(ids));
     }
+
+    @GetMapping("/queryInfo/{departmentId}")
+    public AjaxResult getInfoByDepartmentId(@PathVariable("departmentId") Long departmentId){
+        return AjaxResult.success(departmentService.selectDepartmentByDepartmentId(departmentId));
+    }
+
 }

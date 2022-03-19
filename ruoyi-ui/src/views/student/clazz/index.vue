@@ -10,9 +10,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="院系名称">
+      <el-form-item label="院系名称" prop="departId">
         <el-select
-          v-model="departmentId"
+          v-model="departId"
           placeholder="选择院系"
           clearable
           size="small"
@@ -99,7 +99,8 @@
       <el-table-column label="序号" align="center" prop="id" />
       <el-table-column label="班级编号" align="center" prop="clazzId" />
       <el-table-column label="班级名称" align="center" prop="clazzName" />
-      <el-table-column label="专业编号" align="center" prop="professionId" />
+      <el-table-column label="专业编号" align="center" prop="professionId" >
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -131,6 +132,24 @@
     <!-- 添加或修改班级信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="院系名称" prop="departId">
+          <el-select
+            v-model="departId"
+            placeholder="选择院系"
+            clearable
+            size="small"
+            style="width: 240px"
+
+          >
+            <el-option
+              v-for="depart in departAll"
+              :key="depart.departmentId"
+              :label="depart.departmentName"
+              :value="depart.departmentId"
+              :disabled="choose"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="班级编号" prop="clazzId">
           <el-input v-model="form.clazzId" placeholder="请输入班级编号" />
         </el-form-item>
@@ -139,7 +158,7 @@
         </el-form-item>
         <el-form-item label="专业名称" prop="professionId">
           <el-select
-            v-model="queryParams.professionId"
+            v-model="form.professionId"
             placeholder="选择专业"
             clearable
             size="small"
@@ -164,7 +183,9 @@
 
 <script>
 import { listClazz, getClazz, delClazz, addClazz, updateClazz } from "@/api/student/clazz";
-import {listAllDepartment,getProfessionByDepartId} from "@/api/student/common";
+import {getClazzByDepartId} from "@/api/student/common";
+import {listDepartment} from "@/api/student/department";
+import {listProfession} from "@/api/student/profession";
 
 export default {
   name: "Clazz",
@@ -184,7 +205,7 @@ export default {
       total: 0,
       //所有院系
       departAll :{},
-      departmentId: null,
+      departId: null,
       //所在院系的所有专业
       professions :{},
       // 班级信息表格数据
@@ -193,6 +214,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      //是否可选
+      choose:true,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -200,7 +223,8 @@ export default {
         id: null,
         clazzId: null,
         clazzName: null,
-        professionId: null
+        professionId: null,
+        departmentId:null
       },
       // 表单参数
       form: {},
@@ -214,39 +238,63 @@ export default {
     this.getAllDepartment();
   },
   watch: {
-    departmentId : function (){
-      console.log(this.departmentId);
-      if (this.departmentId!=null) {
-
+    departId : function (){
+      this.professions=null;
+      this.queryParams.professionId=null;
+      if (this.departId ===null||this.departId.length === 0  ) {
+        this.queryParams.professionId=null;
+        this.professions=null;
+      }else {
         this.getProfessionByDepart();
       }
+
     }
   },
   methods: {
     /** 查询班级信息列表 */
     getList() {
       this.loading = true;
-      listClazz(this.queryParams).then(response => {
-        this.clazzList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+      if (this.departId ===null||this.departId.length === 0|| this.queryParams.professionId!==null){
+        listClazz(this.queryParams).then(response => {
+          this.clazzList = response.rows;
+          this.total = response.total;
+          this.loading = false;
+        });
+      }else {
+        getClazzByDepartId(this.departId).then(response => {
+          this.clazzList = response.rows;
+          this.total = response.total;
+          this.loading = false;
+        })
+      }
     },
+    /**查询所有院系 */
     getAllDepartment() {
-      listAllDepartment().then(response => {
-        this.departAll = response.data
+      listDepartment().then(response => {
+        this.departAll = response.rows
       })
     },
+    // getAllProfession() {
+    //   listAllProfession().then(response=> {
+    //     this.professions=response.data
+    //   })
+    // },
+    /** 通过院系ID查询专业*/
     getProfessionByDepart() {
-      getProfessionByDepartId(this.departmentId).then(response=>{
-        this.professions =response.data;
+      let data = {departmentId:this.departId};
+     listProfession(data).then(response=>{
+        this.professions =response.rows;
         console.log(response.msg);
       })
     },
 
+
     // 取消按钮
     cancel() {
       this.open = false;
+      this.professions=null;
+      this.departId=null;
+      this.choose=true;
       this.reset();
     },
     // 表单重置
@@ -267,7 +315,7 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.departmentId= null;
+      this.departId= null;
       this.professions = null;
       this.resetForm("queryForm");
       this.handleQuery();
@@ -280,19 +328,33 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
+      this.getAllDepartment();
+      this.choose=false;
       this.reset();
       this.open = true;
       this.title = "添加班级信息";
     },
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    async handleUpdate(row) {
+      this.choose=true
       this.reset();
-      const id = row.id || this.ids
-      getClazz(id).then(response => {
+      const id = row.id || this.ids;
+      let data= {};
+      let professionId=0;
+      await getClazz(id).then(response => {
         this.form = response.data;
+        professionId=this.form.professionId;
+        console.log("nml"+professionId);
+      });
+      data={professionId:professionId}
+      await listProfession(data).then(response=> {
+        data=response.rows;
+        console.log(data)
+        this.departId=data[0].departmentId;
         this.open = true;
         this.title = "修改班级信息";
       });
+
     },
     /** 提交按钮 */
     submitForm() {
@@ -326,6 +388,7 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
+      this.queryParams.departmentId=this.departId;
       this.download('student/clazz/export', {
         ...this.queryParams
       }, `clazz_${new Date().getTime()}.xlsx`)

@@ -11,6 +11,13 @@
         <result property="professionDescription"    column="profession_description"    />
         <result property="departmentId"    column="department_id"    />
     </resultMap>
+    <resultMap type="ProfessionVo" id="ProfessionVoResult">
+        <result property="id"    column="id"    />
+        <result property="professionId"    column="profession_id"    />
+        <result property="professionName"    column="profession_name"    />
+        <result property="professionDescription"    column="profession_description"    />
+        <result property="departmentName"    column="department_name"    />
+    </resultMap>
 
     <sql id="selectProfessionVo">
         select id, profession_id, profession_name, profession_description, department_id from sys_profession
@@ -30,6 +37,10 @@
     <select id="selectProfessionById" parameterType="Long" resultMap="ProfessionResult">
         <include refid="selectProfessionVo"/>
         where id = #{id}
+    </select>
+    <select id="selectProfessionByProfessionId" parameterType="Long" resultMap="ProfessionResult">
+        <include refid="selectProfessionVo"/>
+        where profession_id = #{professionId}
     </select>
     <select id="selectProfessionByDepartmentId" parameterType="Long" resultMap="ProfessionResult">
         <include refid="selectProfessionVo"/>
@@ -75,4 +86,15 @@
             #{id}
         </foreach>
     </delete>
+
+    <select id="selectProfessionVoList" parameterType="Profession" resultMap="ProfessionVoResult">
+       select p.*,d.department_name  from sys_profession p join sys_department d on p.department_id=d.department_id
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="professionId != null "> and profession_id = #{professionId}</if>
+            <if test="professionName != null  and professionName != ''"> and profession_name like concat('%', #{professionName}, '%')</if>
+            <if test="professionDescription != null  and professionDescription != ''"> and profession_description = #{professionDescription}</if>
+            <if test="departmentId != null "> and p.department_id = #{departmentId}</if>
+        </where>
+    </select>
 </mapper>

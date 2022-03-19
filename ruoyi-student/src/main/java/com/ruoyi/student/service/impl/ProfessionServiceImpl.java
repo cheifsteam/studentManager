@@ -1,6 +1,8 @@
 package com.ruoyi.student.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.student.domain.vo.ProfessionVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.student.mapper.ProfessionMapper;
@@ -99,4 +101,23 @@ public class ProfessionServiceImpl implements IProfessionService
     public List<Profession> selectProfessionByDepartmentId(Long departmentId) {
         return professionMapper.selectProfessionByDepartmentId(departmentId);
     }
+    /**
+     * 导出专业
+     * @param profession
+     * @return
+     */
+    @Override
+    public List<ProfessionVo> selectProfessionVoList(Profession profession){
+        return professionMapper.selectProfessionVoList(profession);
+    }
+    /**
+     * 根据专业id查询专业
+     * @param professionId
+     * @return
+     */
+    @Override
+    public List<Profession> selectProfessionByProfessionId(Long professionId) {
+        return professionMapper.selectProfessionByProfessionId(professionId);
+    }
+
 }

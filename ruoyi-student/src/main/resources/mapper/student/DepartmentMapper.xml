@@ -26,6 +26,10 @@
         <include refid="selectDepartmentVo"/>
         where id = #{id}
     </select>
+    <select id="selectDepartmentByDepartmentId" parameterType="Long" resultMap="DepartmentResult">
+        <include refid="selectDepartmentVo"/>
+        where department_id = #{departmentId}
+    </select>
 
     <insert id="insertDepartment" parameterType="Department">
         insert into sys_department

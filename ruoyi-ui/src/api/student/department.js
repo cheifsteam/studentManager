@@ -1,11 +1,23 @@
+import axios from 'axios';
 import request from '@/utils/request'
-
+let CancelToken = axios.CancelToken;
+window.cancle = null
 // 查询院系列表
 export function listDepartment(query) {
   return request({
     url: '/student/department/list',
     method: 'get',
     params: query
+  })
+}
+// 根据院系ID查询院系
+export function getInfoByDepartId(departmentId) {
+  return request({
+    url: '/student/department/queryInfo/' +departmentId,
+    method: 'get',
+    cancelToken:new CancelToken(function executor(c) {
+      window.cancle = c;
+    })
   })
 }
 

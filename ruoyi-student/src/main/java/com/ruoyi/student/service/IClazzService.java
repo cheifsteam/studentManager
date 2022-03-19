@@ -2,6 +2,7 @@ package com.ruoyi.student.service;
 
 import java.util.List;
 import com.ruoyi.student.domain.Clazz;
+import com.ruoyi.student.domain.vo.ClazzVo;
 
 /**
  * 班级信息Service接口
@@ -58,4 +59,24 @@ public interface IClazzService
      * @return 结果
      */
     public int deleteClazzById(Long id);
+
+    /**
+     * 根据院系ID查找班级
+     * @param departmentId  院系ID
+     * @return 结果
+     */
+    public List<Clazz>  selectClazzListByDepartmentId(Long departmentId);
+    /**
+     * 导出班级信息
+     * @param clazzVo 班级信息
+     * @return
+     */
+    public List<ClazzVo> selectClazzVoList(ClazzVo clazzVo);
+
+    /**
+     * 根据专业ID 查找班级
+     * @param  professionId 专业ID
+     * @return
+     */
+    public List<Clazz> selectClazzListByProfessionId (Long professionId);
 }

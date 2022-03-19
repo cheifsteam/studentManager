@@ -58,4 +58,11 @@ public interface IDepartmentService
      * @return 结果
      */
     public int deleteDepartmentById(Long id);
+
+    /**
+     * 通过院系ID 查找院系
+     * @param departmentId 院系ID
+     * @return
+     */
+    public Department selectDepartmentByDepartmentId(Long departmentId);
 }

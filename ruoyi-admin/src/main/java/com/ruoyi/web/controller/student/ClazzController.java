@@ -1,7 +1,9 @@
-package com.ruoyi.student.controller;
+package com.ruoyi.web.controller.student;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.student.domain.vo.ClazzVo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,10 +54,10 @@ public class ClazzController extends BaseController
     @PreAuthorize("@ss.hasPermi('student:clazz:export')")
     @Log(title = "班级信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Clazz clazz)
+    public void export(HttpServletResponse response, ClazzVo clazzVo)
     {
-        List<Clazz> list = clazzService.selectClazzList(clazz);
-        ExcelUtil<Clazz> util = new ExcelUtil<Clazz>(Clazz.class);
+        List<ClazzVo> list = clazzService.selectClazzVoList(clazzVo);
+        ExcelUtil<ClazzVo> util = new ExcelUtil<ClazzVo>(ClazzVo.class);
         util.exportExcel(response, list, "班级信息数据");
     }
 
@@ -101,4 +103,23 @@ public class ClazzController extends BaseController
     {
         return toAjax(clazzService.deleteClazzByIds(ids));
     }
+
+    /**
+     * 通过院系ID获取班级信息详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('student:clazz:query')")
+    @GetMapping(value = "/queryInfo/{departmentId}")
+    public TableDataInfo getInfoByDepartId(@PathVariable("departmentId") Long departmentId)
+    {
+        startPage();
+        List<Clazz> list = clazzService.selectClazzListByDepartmentId(departmentId);
+        return getDataTable(list);
+    }
+
+    @PreAuthorize("@ss.hasPermi('student:clazz:query')")
+    @GetMapping(value = "/query/{professionId}")
+    public AjaxResult getInfoByProfessId(@PathVariable("professionId") Long professionId){
+        return AjaxResult.success(clazzService.selectClazzListByProfessionId(professionId));
+    }
+
 }

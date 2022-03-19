@@ -95,7 +95,15 @@
       <el-table-column label="专业ID" align="center" prop="professionId" />
       <el-table-column label="专业名称" align="center" prop="professionName" />
       <el-table-column label="专业描述" align="center" prop="professionDescription" />
-      <el-table-column label="院系ID" align="center" prop="departmentId" />
+      <el-table-column label="院系名称" align="center" prop="departmentId">
+        <template slot-scope="scope">
+          <span   v-for="depart in departAll"
+                   v-if="depart.departmentId===scope.row.departmentId">
+            {{depart.departmentName}}
+          </span>
+        </template>
+
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -164,6 +172,7 @@
 <script>
 import { listProfession, getProfession, delProfession, addProfession, updateProfession } from "@/api/student/profession";
 import { listAllDepartment } from "@/api/student/common";
+import {getInfoByDepartId, listDepartment} from "@/api/student/department";
 
 export default {
   name: "Profession",
@@ -180,7 +189,8 @@ export default {
       // 显示搜索条件
       showSearch: true,
       //所有院系
-      departAll :{},
+      departAll :[],
+      departName :'',
       // 总条数
       total: 0,
       // 专业表格数据
@@ -222,10 +232,24 @@ export default {
     },
     getAllDepartment() {
       this.loading = true
-      listAllDepartment().then(response => {
-        this.departAll = response.data
+      listDepartment().then(response => {
+        this.departAll = response.rows
       })
     },
+    // getInfoByDepartmentId(row) {
+    //   let  that =this;
+    //   return (function (i){
+    //        getInfoByDepartId(i).then(response => {
+    //           console.log(i +"sb");
+    //           console.log(response.data.departmentId +"sb1");
+    //           if (i===response.data.departmentId) {
+    //            that.departName = response.data.departmentName;
+    //            console.log(that.departName);
+    //            return that.departName;
+    //           }
+    //         })
+    //     })(row.departmentId)
+    // },
     // 取消按钮
     cancel() {
       this.open = false;
