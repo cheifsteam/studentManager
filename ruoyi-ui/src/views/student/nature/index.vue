@@ -1,41 +1,42 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-
-      <el-form-item label="专业ID" prop="professionId">
+      <el-form-item label="课程性质编号" prop="natureId">
         <el-input
-          v-model="queryParams.professionId"
-          placeholder="请输入专业ID"
+          v-model="queryParams.natureId"
+          placeholder="请输入课程性质编号"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="专业名称" prop="professionName">
+      <el-form-item label="课程性质名称" prop="natureName">
         <el-input
-          v-model="queryParams.professionName"
-          placeholder="请输入专业名称"
+          v-model="queryParams.natureName"
+          placeholder="请输入课程性质名称"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-
-      <el-form-item label="院系名称" prop="departmentId">
-        <el-select
-          v-model="queryParams.departmentId"
-          placeholder="选择院系"
-          clearable
-          size="small"
-          style="width: 240px"
-        >
+      <el-form-item label="课程属性" prop="natureType">
+        <el-select v-model="queryParams.natureType" placeholder="请选择课程属性(0为必修，1为选修)" clearable size="small">
           <el-option
-            v-for="depart in departAll"
-            :key="depart.departmentId"
-            :label="depart.departmentName"
-            :value="depart.departmentId"
+            v-for="dict in dict.type.sys_course_quality"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="备注" prop="remark">
+        <el-input
+          v-model="queryParams.remark"
+          placeholder="请输入备注"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -51,7 +52,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['student:profession:add']"
+          v-hasPermi="['student:nature:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -62,7 +63,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['student:profession:edit']"
+          v-hasPermi="['student:nature:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -73,7 +74,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['student:profession:remove']"
+          v-hasPermi="['student:nature:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -83,7 +84,7 @@
           icon="el-icon-upload2"
           size="mini"
           @click="handleImport"
-          v-hasPermi="['student:profession:import']"
+          v-hasPermi="['student:nature:import']"
         >导入</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -93,27 +94,23 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['student:profession:export']"
+          v-hasPermi="['student:nature:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="professionList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="natureList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" align="center" prop="id" />
-      <el-table-column label="专业ID" align="center" prop="professionId" />
-      <el-table-column label="专业名称" align="center" prop="professionName" />
-      <el-table-column label="专业描述" align="center" prop="professionDescription" />
-      <el-table-column label="院系名称" align="center" prop="departmentId">
+      <el-table-column label="课程性质编号" align="center" prop="natureId" />
+      <el-table-column label="课程性质名称" align="center" prop="natureName" />
+      <el-table-column label="课程属性" align="center" prop="natureType">
         <template slot-scope="scope">
-          <span   v-for="depart in departAll"
-                   v-if="depart.departmentId===scope.row.departmentId">
-            {{depart.departmentName}}
-          </span>
+          <dict-tag :options="dict.type.sys_course_quality" :value="scope.row.natureType"/>
         </template>
-
       </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -121,14 +118,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['student:profession:edit']"
+            v-hasPermi="['student:nature:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['student:profession:remove']"
+            v-hasPermi="['student:nature:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -141,7 +138,7 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-    <!-- 专业导入对话框 -->
+    <!-- 课程性质导入对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px">
       <el-upload
         ref="upload"
@@ -172,33 +169,27 @@
       </div>
     </el-dialog>
 
-    <!-- 添加或修改专业对话框 -->
+    <!-- 添加或修改课程性质对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="专业ID" prop="professionId">
-          <el-input v-model="form.professionId" placeholder="请输入专业ID" />
+        <el-form-item label="课程性质编号" prop="natureId">
+          <el-input v-model="form.natureId" placeholder="请输入课程性质编号" />
         </el-form-item>
-        <el-form-item label="专业名称" prop="professionName">
-          <el-input v-model="form.professionName" placeholder="请输入专业名称" />
+        <el-form-item label="课程性质名称" prop="natureName">
+          <el-input v-model="form.natureName" placeholder="请输入课程性质名称" />
         </el-form-item>
-        <el-form-item label="专业描述" prop="professionDescription">
-          <el-input v-model="form.professionDescription" placeholder="请输入专业描述" />
-        </el-form-item>
-        <el-form-item label="院系名称" prop="departmentId">
-          <el-select
-            v-model="form.departmentId"
-            placeholder="选择院系"
-            clearable
-            size="small"
-            style="width: 240px"
-          >
+        <el-form-item label="课程属性" prop="natureType">
+          <el-select v-model="form.natureType" placeholder="请选择课程属性(0为必修，1为选修)">
             <el-option
-              v-for="depart in departAll"
-              :key="depart.departmentId"
-              :label="depart.departmentName"
-              :value="depart.departmentId"
-            />
+              v-for="dict in dict.type.sys_course_quality"
+              :key="dict.value"
+              :label="dict.label"
+              :value="parseInt(dict.value)"
+            ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -210,13 +201,12 @@
 </template>
 
 <script>
-import { listProfession, getProfession, delProfession, addProfession, updateProfession } from "@/api/student/profession";
-import { listAllDepartment } from "@/api/student/common";
-import {getInfoByDepartId, listDepartment} from "@/api/student/department";
+import { listNature, getNature, delNature, addNature, updateNature } from "@/api/student/nature";
 import {getToken} from "@/utils/auth";
 
 export default {
-  name: "Profession",
+  name: "Nature",
+  dicts: ['sys_course_quality'],
   data() {
     return {
       // 遮罩层
@@ -229,13 +219,10 @@ export default {
       multiple: true,
       // 显示搜索条件
       showSearch: true,
-      //所有院系
-      departAll :[],
-      departName :'',
       // 总条数
       total: 0,
-      // 专业表格数据
-      professionList: [],
+      // 课程性质表格数据
+      natureList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -244,29 +231,27 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        id: null,
-        professionId: null,
-        professionName: null,
-        professionDescription: null,
-        departmentId: null
+        natureId: null,
+        natureName: null,
+        natureType: null,
+        remark: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        professionId:[
-          { required:true,message:"请输入专业编号",trigger:"blur"},
+        natureId:[
+          { required:true,message:"请输入课程性质编号",trigger:"blur"},
           {
             pattern:/^\d{10}$/,
-            message: "请输入10位专业编号"
+            message: "请输入10位课程性质编号"
           }
         ],
-        departmentId:[
-          { required:true,message:"请输入院系编号",trigger:"blur"},
-          { required:true,message:"请选择院系",trigger:"change"},
+        natureType:[
+          { required:true,message:"请选择课程性质",trigger:"change"},
         ],
-        professionName:[
-          { required:true,message:"请输入专业名称",trigger:"blur"},
+        natureName:[
+          { required:true,message:"请输入课程性质名称",trigger:"blur"},
           {
             pattern: /^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$/,
             message:"请输入正确格式专业名称"
@@ -287,45 +272,24 @@ export default {
         // 设置上传的请求头部
         headers: { Authorization: "Bearer " + getToken() },
         // 上传的地址
-        url: process.env.VUE_APP_BASE_API + "/student/profession/importData"
+        url: process.env.VUE_APP_BASE_API + "/student/nature/importData"
       }
 
     };
   },
   created() {
     this.getList();
-    this.getAllDepartment();
   },
   methods: {
-    /** 查询专业列表 */
+    /** 查询课程性质列表 */
     getList() {
       this.loading = true;
-      listProfession(this.queryParams).then(response => {
-        this.professionList = response.rows;
+      listNature(this.queryParams).then(response => {
+        this.natureList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
     },
-    getAllDepartment() {
-      this.loading = true
-      listDepartment().then(response => {
-        this.departAll = response.rows
-      })
-    },
-    // getInfoByDepartmentId(row) {
-    //   let  that =this;
-    //   return (function (i){
-    //        getInfoByDepartId(i).then(response => {
-    //           console.log(i +"sb");
-    //           console.log(response.data.departmentId +"sb1");
-    //           if (i===response.data.departmentId) {
-    //            that.departName = response.data.departmentName;
-    //            console.log(that.departName);
-    //            return that.departName;
-    //           }
-    //         })
-    //     })(row.departmentId)
-    // },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -335,10 +299,10 @@ export default {
     reset() {
       this.form = {
         id: null,
-        professionId: null,
-        professionName: null,
-        professionDescription: null,
-        departmentId: null
+        natureId: null,
+        natureName: null,
+        natureType: null,
+        remark: null
       };
       this.resetForm("form");
     },
@@ -355,23 +319,23 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
+      this.single = selection.length!==1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加专业";
+      this.title = "添加课程性质";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getProfession(id).then(response => {
+      getNature(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改专业";
+        this.title = "修改课程性质";
       });
     },
     /** 提交按钮 */
@@ -379,13 +343,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateProfession(this.form).then(response => {
+            updateNature(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addProfession(this.form).then(response => {
+            addNature(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -397,28 +361,27 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除专业编号为"' + ids + '"的数据项？').then(function () {
-        return delProfession(ids);
+      this.$modal.confirm('是否确认删除课程性质编号为"' + ids + '"的数据项？').then(function() {
+        return delNature(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
-      }).catch(() => {
-      });
+      }).catch(() => {});
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('student/profession/export', {
+      this.download('student/nature/export', {
         ...this.queryParams
-      }, `profession_${new Date().getTime()}.xlsx`)
+      }, `nature_${new Date().getTime()}.xlsx`)
     },
     /** 导入按钮操作 */
     handleImport() {
-      this.upload.title = "专业导入";
+      this.upload.title = "课程性质导入";
       this.upload.open = true;
     },
     /** 下载模板操作 */
     importTemplate() {
-      this.download('student/profession/importTemplate', {}, `profession_template_${new Date().getTime()}.xlsx`)
+      this.download('student/nature/importTemplate', {}, `nature_template_${new Date().getTime()}.xlsx`)
     },
 // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {

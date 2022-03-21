@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.student.mapper.CourseMapper">
+
+    <resultMap type="Course" id="CourseResult">
+        <result property="id"    column="id"    />
+        <result property="courseId"    column="course_id"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="courseCredit"    column="course_credit"    />
+        <result property="courseTheoreticalHours"    column="course_theoretical_hours"    />
+        <result property="coursePracticalHours"    column="course_practical_hours"    />
+        <result property="courseAssessmentMethods"    column="course_assessment_methods"    />
+    </resultMap>
+
+    <sql id="selectCourseVo">
+        select id, course_id, course_name, course_credit, course_theoretical_hours, course_practical_hours, course_assessment_methods from sys_course
+    </sql>
+
+    <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        <where>
+            <if test="courseId != null "> and course_id = #{courseId}</if>
+            <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
+            <if test="courseCredit != null "> and course_credit = #{courseCredit}</if>
+            <if test="courseTheoreticalHours != null "> and course_theoretical_hours = #{courseTheoreticalHours}</if>
+            <if test="coursePracticalHours != null "> and course_practical_hours = #{coursePracticalHours}</if>
+            <if test="courseAssessmentMethods != null "> and course_assessment_methods = #{courseAssessmentMethods}</if>
+        </where>
+    </select>
+
+    <select id="selectCourseById" parameterType="Long" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCourse" parameterType="Course" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">course_id,</if>
+            <if test="courseName != null">course_name,</if>
+            <if test="courseCredit != null">course_credit,</if>
+            <if test="courseTheoreticalHours != null">course_theoretical_hours,</if>
+            <if test="coursePracticalHours != null">course_practical_hours,</if>
+            <if test="courseAssessmentMethods != null">course_assessment_methods,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">#{courseId},</if>
+            <if test="courseName != null">#{courseName},</if>
+            <if test="courseCredit != null">#{courseCredit},</if>
+            <if test="courseTheoreticalHours != null">#{courseTheoreticalHours},</if>
+            <if test="coursePracticalHours != null">#{coursePracticalHours},</if>
+            <if test="courseAssessmentMethods != null">#{courseAssessmentMethods},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCourse" parameterType="Course">
+        update sys_course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="courseCredit != null">course_credit = #{courseCredit},</if>
+            <if test="courseTheoreticalHours != null">course_theoretical_hours = #{courseTheoreticalHours},</if>
+            <if test="coursePracticalHours != null">course_practical_hours = #{coursePracticalHours},</if>
+            <if test="courseAssessmentMethods != null">course_assessment_methods = #{courseAssessmentMethods},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCourseById" parameterType="Long">
+        delete from sys_course where id = #{id}
+    </delete>
+
+    <delete id="deleteCourseByIds" parameterType="String">
+        delete from sys_course where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

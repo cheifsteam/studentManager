@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.student.mapper.NatureMapper">
+
+    <resultMap type="Nature" id="NatureResult">
+        <result property="id"    column="id"    />
+        <result property="natureId"    column="nature_id"    />
+        <result property="natureName"    column="nature_name"    />
+        <result property="natureType"    column="nature_type"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectNatureVo">
+        select id, nature_id, nature_name, nature_type, remark from sys_nature
+    </sql>
+
+    <select id="selectNatureList" parameterType="Nature" resultMap="NatureResult">
+        <include refid="selectNatureVo"/>
+        <where>
+            <if test="natureId != null "> and nature_id = #{natureId}</if>
+            <if test="natureName != null  and natureName != ''"> and nature_name like concat('%', #{natureName}, '%')</if>
+            <if test="natureType != null "> and nature_type = #{natureType}</if>
+            <if test="remark != null  and remark != ''"> and remark = #{remark}</if>
+        </where>
+    </select>
+
+    <select id="selectNatureById" parameterType="Long" resultMap="NatureResult">
+        <include refid="selectNatureVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertNature" parameterType="Nature" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_nature
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="natureId != null">nature_id,</if>
+            <if test="natureName != null">nature_name,</if>
+            <if test="natureType != null">nature_type,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="natureId != null">#{natureId},</if>
+            <if test="natureName != null">#{natureName},</if>
+            <if test="natureType != null">#{natureType},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateNature" parameterType="Nature">
+        update sys_nature
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="natureId != null">nature_id = #{natureId},</if>
+            <if test="natureName != null">nature_name = #{natureName},</if>
+            <if test="natureType != null">nature_type = #{natureType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteNatureById" parameterType="Long">
+        delete from sys_nature where id = #{id}
+    </delete>
+
+    <delete id="deleteNatureByIds" parameterType="String">
+        delete from sys_nature where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectNatureByNatureId" parameterType="Long" resultMap="NatureResult">
+        select nature_id,nature_name
+        from sys_nature
+        where nature_id=#{natureId}
+    </select>
+</mapper>
