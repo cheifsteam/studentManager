@@ -2,6 +2,7 @@ package com.ruoyi.student.service;
 
 import java.util.List;
 import com.ruoyi.student.domain.Student;
+import com.ruoyi.student.domain.vo.StudentVo;
 
 /**
  * 学生Service接口
@@ -17,7 +18,7 @@ public interface IStudentService
      * @param id 学生主键
      * @return 学生
      */
-    public Student selectStudentById(Long id);
+    public StudentVo selectStudentById(Long id);
 
     /**
      * 查询学生列表
@@ -59,6 +60,27 @@ public interface IStudentService
      */
     public int deleteStudentById(Long id);
 
+    /**
+     * 联接查询学生列表
+     *
+     * @param studentVo 学生
+     * @return 学生集合
+     */
+    public List<StudentVo> selectStudentVoList(StudentVo studentVo);
 
+    /**
+     * 导入学生
+     * @param studentList
+     * @param updateSupport
+     * @param s
+     * @return
+     */
+    public   String importStudent(List<Student> studentList, boolean updateSupport, String s);
 
+    /**
+     * 通过学号查询学生
+     * @param  studentId
+     * @return
+     */
+    public Student selectStudentByStudentId(Long studentId);
 }

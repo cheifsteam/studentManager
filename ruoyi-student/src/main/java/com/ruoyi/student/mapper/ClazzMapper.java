@@ -81,4 +81,13 @@ public interface ClazzMapper
     public List<Clazz> selectClazzListByProfessionId(Long professionId);
 
 
+    /**
+     * 根据班级编号查询班级
+     * @param clazzId
+     * @return
+     */
+    public  Clazz selectClazzByClazzId(Long clazzId);
+
+
+
 }

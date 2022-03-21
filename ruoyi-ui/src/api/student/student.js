@@ -8,6 +8,14 @@ export function listStudent(query) {
     params: query
   })
 }
+// 联接查询学生列表
+export function listJoinStudent(query) {
+  return request({
+    url: '/student/student/listJoin',
+    method: 'get',
+    params: query
+  })
+}
 
 // 查询学生详细
 export function getStudent(id) {
@@ -42,3 +50,5 @@ export function delStudent(id) {
     method: 'delete'
   })
 }
+
+

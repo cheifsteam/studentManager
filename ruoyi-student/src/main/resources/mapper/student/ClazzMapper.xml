@@ -22,6 +22,10 @@
     <sql id="selectClazzVo">
         select id, clazz_id, clazz_name, profession_id from sys_clazz
     </sql>
+    <select id="selectClazzByClazzId" parameterType="Long" resultMap="ClazzResult">
+        <include refid="selectClazzVo"/>
+        where clazz_id = #{clazzId}
+    </select>
 
     <select id="selectClazzList" parameterType="Clazz" resultMap="ClazzResult">
         <include refid="selectClazzVo"/>

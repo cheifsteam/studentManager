@@ -2,6 +2,7 @@ package com.ruoyi.student.mapper;
 
 import java.util.List;
 import com.ruoyi.student.domain.Student;
+import com.ruoyi.student.domain.vo.StudentVo;
 
 /**
  * 学生Mapper接口
@@ -17,7 +18,7 @@ public interface StudentMapper
      * @param id 学生主键
      * @return 学生
      */
-    public Student selectStudentById(Long id);
+    public StudentVo selectStudentById(Long id);
 
     /**
      * 查询学生列表
@@ -58,4 +59,19 @@ public interface StudentMapper
      * @return 结果
      */
     public int deleteStudentByIds(Long[] ids);
+
+    /**
+     * 联接查询学生列表
+     *
+     * @param studentVo 学生
+     * @return 学生集合
+     */
+    public List<StudentVo> selectStudentVoList(StudentVo studentVo);
+
+    /**
+     * 通过学号查询学生
+     * @param  studentId
+     * @return
+     */
+    public Student selectStudentByStudentId(Long studentId);
 }

@@ -168,6 +168,21 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        departmentId:[
+          { required:true,message:"请输入院系编号",trigger:"blur"},
+          {
+            pattern:/^\d{10}$/,
+            message: "请输入10位院系编号"
+          }
+        ],
+        departmentName:[
+          { required:true,message:"请输入院系名称",trigger:"blur"},
+          {
+            pattern: /^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$/,
+            message:"请输入正确格式院系名称"
+
+          }
+        ]
       }
     };
   },

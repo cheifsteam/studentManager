@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.student;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.student.domain.Profession;
 import com.ruoyi.student.domain.vo.ProfessionVo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.ruoyi.student.domain.Profession;
 import com.ruoyi.student.service.IProfessionService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 专业Controller
@@ -124,13 +126,42 @@ public class ProfessionController extends BaseController
     public AjaxResult getInfoByDepartmentId (@PathVariable("departmentId") Long departmentId){
         return AjaxResult.success(professionService.selectProfessionByDepartmentId(departmentId));
     }
+//    /**
+//     * 根据专业id查询专业
+//     *
+//     */
+//    @PreAuthorize("@ss.hasPermi('student:profession:query')")
+//    @GetMapping(value = "/info/{professionId}")
+//    public AjaxResult getInfoByProfessionId (@PathVariable("professionId") Long professionId){
+//        return AjaxResult.success(professionService.selectProfessionByProfessionId(professionId));
+//    }
+
     /**
-     * 根据专业id查询专业
-     *
+     * 下载导入模板
+     * @param response
      */
-    @PreAuthorize("@ss.hasPermi('student:profession:query')")
-    @GetMapping(value = "/info/{professionId}")
-    public AjaxResult getInfoByProfessionId (@PathVariable("professionId") Long professionId){
-        return AjaxResult.success(professionService.selectProfessionByProfessionId(professionId));
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+        ExcelUtil<Profession> util = new ExcelUtil<Profession>(Profession.class);
+        util.importTemplateExcel(response, "专业数据");
+    }
+
+    /**
+     * 专业导入
+     * @param file
+     * @param updateSupport
+     * @return
+     * @throws Exception
+     */
+    @Log(title = "专业信息", businessType = BusinessType.IMPORT)
+    @PreAuthorize("@ss.hasPermi('system:profession:import')")
+    @PostMapping("/importData")
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
+    {
+        ExcelUtil<Profession> util = new ExcelUtil<Profession>(Profession.class);
+        List<Profession> professionList = util.importExcel(file.getInputStream());
+        String message = professionService.importProfession(professionList, updateSupport, "");
+        return AjaxResult.success(message);
     }
 }

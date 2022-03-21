@@ -1,7 +1,10 @@
-package com.ruoyi.student.controller;
+package com.ruoyi.web.controller.student;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.student.domain.Clazz;
+import com.ruoyi.student.domain.vo.StudentVo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,7 @@ import com.ruoyi.student.domain.Student;
 import com.ruoyi.student.service.IStudentService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 学生Controller
@@ -52,10 +56,10 @@ public class StudentController extends BaseController
     @PreAuthorize("@ss.hasPermi('student:student:export')")
     @Log(title = "学生", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Student student)
+    public void export(HttpServletResponse response, StudentVo student)
     {
-        List<Student> list = studentService.selectStudentList(student);
-        ExcelUtil<Student> util = new ExcelUtil<Student>(Student.class);
+        List<StudentVo> list = studentService.selectStudentVoList(student);
+        ExcelUtil<StudentVo> util = new ExcelUtil<StudentVo>(StudentVo.class);
         util.exportExcel(response, list, "学生数据");
     }
 
@@ -101,4 +105,45 @@ public class StudentController extends BaseController
     {
         return toAjax(studentService.deleteStudentByIds(ids));
     }
+
+    /**
+     * 联接查询学生
+     * @param student
+     * @return
+     */
+    @GetMapping("/listJoin")
+    public TableDataInfo listJoin(StudentVo student)
+    {
+        startPage();
+        List<StudentVo> list = studentService.selectStudentVoList(student);
+        return getDataTable(list);
+    }
+    /**
+     * 下载导入模板
+     * @param response
+     */
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+        ExcelUtil<Student> util = new ExcelUtil<>(Student.class);
+        util.importTemplateExcel(response, "学生数据");
+    }
+    /**
+     * 班级导入
+     * @param file
+     * @param updateSupport
+     * @return
+     * @throws Exception
+     */
+    @Log(title = "学生信息", businessType = BusinessType.IMPORT)
+    @PreAuthorize("@ss.hasPermi('system:student:import')")
+    @PostMapping("/importData")
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
+    {
+        ExcelUtil<Student> util = new ExcelUtil<>(Student.class);
+        List<Student> studentList = util.importExcel(file.getInputStream());
+        String message = studentService.importStudent(studentList, updateSupport, "");
+        return AjaxResult.success(message);
+    }
+
 }

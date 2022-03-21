@@ -24,6 +24,10 @@ public class Student extends BaseEntity
     @Excel(name = "学号")
     private Long studentId;
 
+    /** 班级编号 */
+    @Excel(name = "班级编号")
+    private Long clazzId;
+
     /** 学生姓名 */
     @Excel(name = "学生姓名")
     private String studentName;
@@ -63,12 +67,10 @@ public class Student extends BaseEntity
     private String studentKeyContactsPhonenumber;
 
     /** 用户id (学号作为userId) */
-    @Excel(name = "用户id (学号作为userId)")
+//    @Excel(name = "用户id (学号作为userId)")
     private Long userId;
 
-    /** 班级编号 */
-    @Excel(name = "班级编号")
-    private Long clazzId;
+
 
     public void setId(Long id)
     {

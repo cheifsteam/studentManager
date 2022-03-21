@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.student;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.student.domain.Clazz;
 import com.ruoyi.student.domain.vo.ClazzVo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.ruoyi.student.domain.Clazz;
 import com.ruoyi.student.service.IClazzService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 班级信息Controller
@@ -116,10 +118,44 @@ public class ClazzController extends BaseController
         return getDataTable(list);
     }
 
+    /**
+     * 根据专业编号查询班级
+     * @param professionId
+     * @return
+     */
     @PreAuthorize("@ss.hasPermi('student:clazz:query')")
     @GetMapping(value = "/query/{professionId}")
     public AjaxResult getInfoByProfessId(@PathVariable("professionId") Long professionId){
         return AjaxResult.success(clazzService.selectClazzListByProfessionId(professionId));
     }
+
+    /**
+     * 下载导入模板
+     * @param response
+     */
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+        ExcelUtil<Clazz> util = new ExcelUtil<>(Clazz.class);
+        util.importTemplateExcel(response, "班级数据");
+    }
+    /**
+     * 班级导入
+     * @param file
+     * @param updateSupport
+     * @return
+     * @throws Exception
+     */
+    @Log(title = "班级信息", businessType = BusinessType.IMPORT)
+    @PreAuthorize("@ss.hasPermi('system:clazz:import')")
+    @PostMapping("/importData")
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
+    {
+        ExcelUtil<Clazz> util = new ExcelUtil<Clazz>(Clazz.class);
+        List<Clazz> clazzList = util.importExcel(file.getInputStream());
+        String message = clazzService.importClazz(clazzList, updateSupport, "");
+        return AjaxResult.success(message);
+    }
+
 
 }

@@ -79,6 +79,15 @@ public interface ProfessionMapper
      * @param professionId
      * @return
      */
-    public List<Profession> selectProfessionByProfessionId(Long professionId);
+    public Profession selectProfessionByProfessionId(Long professionId);
+
+    /**
+     * 导入专业
+     * @param professionList
+     * @param isUpdateSupport
+     * @param operName
+     * @return
+     */
+    public String importProfession(List<Profession> professionList,Boolean isUpdateSupport ,String operName);
 
 }
