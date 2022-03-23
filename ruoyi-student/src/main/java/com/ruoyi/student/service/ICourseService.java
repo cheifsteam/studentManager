@@ -58,4 +58,18 @@ public interface ICourseService
      * @return 结果
      */
     public int deleteCourseById(Long id);
+
+    /**
+     * 通过CourseId查询课程信息
+     * @param courseId
+     * @return
+     */
+    public Course  selectCourseByCourseId(Long courseId);
+
+    /**
+     * 通过DepartmentId查询课程信息
+     * @param departmentId
+     * @return
+     */
+    public List<Course> selectCourseByDepartmentId(Long departmentId);
 }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.student.mapper.CourseDepartmentMapper">
+
+    <resultMap type="CourseDepartment" id="CourseDepartmentResult">
+        <result property="courseId"    column="course_id"    />
+        <result property="departmentId"    column="department_id"    />
+    </resultMap>
+
+    <sql id="selectCourseDepartmentVo">
+        select course_id, department_id from sys_course_department
+    </sql>
+
+    <select id="selectCourseDepartmentList" parameterType="CourseDepartment" resultMap="CourseDepartmentResult">
+        <include refid="selectCourseDepartmentVo"/>
+        <where>
+        </where>
+    </select>
+
+    <select id="selectCourseDepartmentByCourseId" parameterType="Long" resultMap="CourseDepartmentResult">
+        <include refid="selectCourseDepartmentVo"/>
+        where course_id = #{courseId}
+    </select>
+
+    <select id="selectCourseDepartmentByDepartmentId" parameterType="Long" resultMap="CourseDepartmentResult">
+        <include refid="selectCourseDepartmentVo"/>
+        where department_id = #{departmentId}
+    </select>
+
+    <insert id="insertCourseDepartment" parameterType="CourseDepartment">
+        insert into sys_course_department
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">course_id,</if>
+            <if test="departmentId != null">department_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">#{courseId},</if>
+            <if test="departmentId != null">#{departmentId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCourseDepartment" parameterType="CourseDepartment">
+        update sys_course_department
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="departmentId != null">department_id = #{departmentId},</if>
+        </trim>
+        where course_id = #{courseId}
+    </update>
+
+    <delete id="deleteCourseDepartmentByCourseId" parameterType="Long">
+        delete from sys_course_department where course_id = #{courseId}
+    </delete>
+
+    <delete id="deleteCourseDepartmentByCourseIds" parameterType="String">
+        delete from sys_course_department where course_id in
+        <foreach item="courseId" collection="array" open="(" separator="," close=")">
+            #{courseId}
+        </foreach>
+    </delete>
+</mapper>

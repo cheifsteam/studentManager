@@ -42,6 +42,16 @@ public class Course extends BaseEntity
     @Excel(name = "考核方式(0为考试，1为考查)")
     private Integer courseAssessmentMethods;
 
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    private Long departmentId;
+
     public void setId(Long id)
     {
         this.id = id;

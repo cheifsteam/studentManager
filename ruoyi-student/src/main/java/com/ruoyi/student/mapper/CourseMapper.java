@@ -28,6 +28,13 @@ public interface CourseMapper
     public List<Course> selectCourseList(Course course);
 
     /**
+     * 通过CourseId查询课程信息
+     * @param courseId
+     * @return
+     */
+    public Course  selectCourseByCourseId(Long courseId);
+
+    /**
      * 新增课程信息
      *
      * @param course 课程信息
@@ -58,4 +65,6 @@ public interface CourseMapper
      * @return 结果
      */
     public int deleteCourseByIds(Long[] ids);
+
+
 }

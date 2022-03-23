@@ -12,6 +12,7 @@
         <result property="courseTheoreticalHours"    column="course_theoretical_hours"    />
         <result property="coursePracticalHours"    column="course_practical_hours"    />
         <result property="courseAssessmentMethods"    column="course_assessment_methods"    />
+        <result property="departmentId"    column="department_id"    />
     </resultMap>
 
     <sql id="selectCourseVo">
@@ -19,14 +20,16 @@
     </sql>
 
     <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">
-        <include refid="selectCourseVo"/>
+        select c.*,cd.department_id from sys_course c join  sys_course_department cd
+        on  c.course_id =cd.course_id
         <where>
-            <if test="courseId != null "> and course_id = #{courseId}</if>
+            <if test="courseId != null "> and c.course_id = #{courseId}</if>
             <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
             <if test="courseCredit != null "> and course_credit = #{courseCredit}</if>
             <if test="courseTheoreticalHours != null "> and course_theoretical_hours = #{courseTheoreticalHours}</if>
             <if test="coursePracticalHours != null "> and course_practical_hours = #{coursePracticalHours}</if>
             <if test="courseAssessmentMethods != null "> and course_assessment_methods = #{courseAssessmentMethods}</if>
+            <if test="departmentId!=null">and cd.department_id= #{departmentId}</if>
         </where>
     </select>
 
@@ -34,6 +37,11 @@
         <include refid="selectCourseVo"/>
         where id = #{id}
     </select>
+    <select id="selectCourseByCourseId" parameterType="Long" resultMap="CourseResult">
+        select * from sys_course where course_id = #{courseId}
+    </select>
+
+
 
     <insert id="insertCourse" parameterType="Course" useGeneratedKeys="true" keyProperty="id">
         insert into sys_course

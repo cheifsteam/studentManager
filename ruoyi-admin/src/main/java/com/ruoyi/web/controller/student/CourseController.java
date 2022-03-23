@@ -45,7 +45,16 @@ public class CourseController extends BaseController
         List<Course> list = courseService.selectCourseList(course);
         return getDataTable(list);
     }
-
+    /**
+     * 通过课程id查询课程信息列表
+     */
+    @PreAuthorize("@ss.hasPermi('student:course:list')")
+    @GetMapping("/listByDepartmentId/{departmentId}")
+    public TableDataInfo listByDepartmentId(@PathVariable Long departmentId){
+        startPage();
+        List<Course> list = courseService.selectCourseByDepartmentId(departmentId);
+        return getDataTable(list);
+    }
     /**
      * 导出课程信息列表
      */

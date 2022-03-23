@@ -19,6 +19,22 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="开课院系" prop="departmentId">
+        <el-select
+          v-model="queryParams.departmentId"
+          placeholder="选择院系"
+          clearable
+          size="small"
+          style="width: 240px"
+        >
+          <el-option
+            v-for="depart in departAll"
+            :key="depart.departmentId"
+            :label="depart.departmentName"
+            :value="depart.departmentId"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -79,9 +95,17 @@
       <el-table-column label="课程学分" align="center" prop="courseCredit" />
       <el-table-column label="理论学时" align="center" prop="courseTheoreticalHours" />
       <el-table-column label="实践学时" align="center" prop="coursePracticalHours" />
-      <el-table-column label="考核方式(0为考试，1为考查)" align="center" prop="courseAssessmentMethods">
+      <el-table-column label="考核方式" align="center" prop="courseAssessmentMethods">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_course_exam" :value="scope.row.courseAssessmentMethods"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="开课院系" align="center" prop="departmentId">
+        <template slot-scope="scope">
+          <span   v-for="depart in departAll"
+                  v-if="depart.departmentId===scope.row.departmentId">
+            {{depart.departmentName}}
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -130,8 +154,34 @@
         <el-form-item label="实践学时" prop="coursePracticalHours">
           <el-input v-model="form.coursePracticalHours" placeholder="请输入实践学时" />
         </el-form-item>
-        <el-form-item label="考核方式(0为考试，1为考查)" prop="courseAssessmentMethods">
-          <el-input v-model="form.courseAssessmentMethods" placeholder="请输入考核方式(0为考试，1为考查)" />
+        <el-form-item label="考核方式" prop="courseAssessmentMethods">
+          <el-select v-model="form.courseAssessmentMethods" placeholder="请选择考核方式"
+                     clearable
+                     size="small"
+                     style="width: 240px">
+          <el-option
+            v-for="dict in dict.type.sys_course_exam"
+            :key="dict.value"
+            :label="dict.label"
+            :value="parseInt(dict.value)"
+          ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="开课院系" prop="departmentId">
+          <el-select
+            v-model="form.departmentId"
+            placeholder="选择院系"
+            clearable
+            size="small"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="depart in departAll"
+              :key="depart.departmentId"
+              :label="depart.departmentName"
+              :value="depart.departmentId"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -143,7 +193,8 @@
 </template>
 
 <script>
-import { listCourse, getCourse, delCourse, addCourse, updateCourse } from "@/api/student/course";
+import { listCourse, getCourse, delCourse, addCourse, updateCourse,getCourseListByDepartmentId} from "@/api/student/course";
+import {listDepartment} from "@/api/student/department";
 
 export default {
   name: "Course",
@@ -164,6 +215,7 @@ export default {
       total: 0,
       // 课程信息表格数据
       courseList: [],
+      departAll : [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -177,27 +229,84 @@ export default {
         courseCredit: null,
         courseTheoreticalHours: null,
         coursePracticalHours: null,
-        courseAssessmentMethods: null
+        courseAssessmentMethods: null,
+        departmentId: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
+        courseId: [
+          {required: true, message: "请输入课程编号", trigger: "blur"},
+          {
+            pattern: /^\d{10}$/,
+            message: "请输入10位课程编号"
+          }
+        ],
+        departmentId:[
+          { required:true,message:"请选择院系",trigger:"change"},
+        ],
+        courseAssessmentMethods:[
+          { required:true,message:"请选择考核方式",trigger:"change"},
+        ],
+        courseName: [
+          {required: true, message: "请输入课程名称", trigger: "blur"},
+          {
+            pattern: /^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$/,
+            message: "请输入正确格式课程名称"
+
+          }
+        ],
+        courseCredit :[
+          {required: true, message: "请输入课程学分", trigger: "blur"},
+          {
+            pattern: /^\d{1,2}$/,
+            message: "请输入正确格式的学分"
+          }
+        ],
+        courseTheoreticalHours:[
+          {required: true, message: "请输入理论学时", trigger: "blur"},
+          {
+            pattern: /^\d{1,2}$/,
+            message: "请输入正确格式的理论学时"
+          }
+        ],
+        coursePracticalHours:[
+          {required: true, message: "请输入实践学时", trigger: "blur"},
+          {
+            pattern: /^\d{1,2}$/,
+            message: "请输入正确格式的实践学时"
+          }
+        ]
       }
     };
   },
   created() {
     this.getList();
+    this.getAllDepartment();
   },
   methods: {
     /** 查询课程信息列表 */
     getList() {
       this.loading = true;
-      listCourse(this.queryParams).then(response => {
+        listCourse(this.queryParams).then(response => {
+          this.courseList = response.rows;
+          this.total = response.total;
+          this.loading = false;
+        });
+    },
+    getAllDepartment() {
+      this.loading = true
+      listDepartment().then(response => {
+        this.departAll = response.rows
+      })
+    },
+    getCourseListByDepartmentId() {
+      getCourseListByDepartmentId(this.queryParams.departmentId).then(response => {
         this.courseList = response.rows;
         this.total = response.total;
         this.loading = false;
-      });
+      })
     },
     // 取消按钮
     cancel() {
@@ -213,7 +322,8 @@ export default {
         courseCredit: null,
         courseTheoreticalHours: null,
         coursePracticalHours: null,
-        courseAssessmentMethods: null
+        courseAssessmentMethods: null,
+        departmentId :null
       };
       this.resetForm("form");
     },

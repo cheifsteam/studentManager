@@ -42,3 +42,10 @@ export function delCourse(id) {
     method: 'delete'
   })
 }
+//通过院系ID查询课程
+export function getCourseListByDepartmentId(departmentId) {
+  return request({
+    url: '/student/course/listByDepartmentId/' + departmentId,
+    method: 'get'
+  })
+}
